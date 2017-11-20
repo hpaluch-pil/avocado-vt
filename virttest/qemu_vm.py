@@ -1828,6 +1828,18 @@ class VM(virt_vm.BaseVM):
                               pci_bus=pci_bus)
                 iov += 1
 
+        #  Add general PCI Pass-through devices
+        for pci_pass_devs in params.objects("pci_pass_devices"):
+            pci_pass_params = params.object_params(pci_pass_devs)
+            # required
+            pci_host = pci_pass_params['host']
+            # optional
+            pci_device_driver = pci_pass_params.get('device_driver', 'vfio-pci')
+            logging.info("add_pcidevice( pci_host=%s, device_driver=%s )" % (pci_host, pci_device_driver))
+            # register PCI pass-through device
+            add_pcidevice(devices, pci_host, pci_pass_params,
+                          pci_device_driver, pci_bus)
+
         # Add Memory devices
         add_memorys(devices, params)
         smp = int(params.get("smp", 0))
